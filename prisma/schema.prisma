@@ -13,23 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model COMPANY {
-  id                String       @id @unique @default(uuid())
-  name              String       @unique
-  description       String
-  brand_image       String?
-  actual_investment Int          @default(0)
-  revenue           Int          @default(0)
-  total_employees   Int          @default(0)
-  selected_count    Int          @default(0)
-  compared_count    Int          @default(0)
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  investments       INVESTMENT[]
-  categories        CATEGORY[]
+model Company {
+  id               String       @id @unique @default(uuid())
+  name             String       @unique
+  description      String
+  brandImage       String?
+  actualInvestment BigInt       @default(0)
+  revenue          BigInt       @default(0)
+  totalEmployees   Int          @default(0)
+  selectedCount    Int          @default(0)
+  comparedCount    Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  investments      Investment[]
+  categories       Category[]
 }
 
-model INVESTMENT {
+model Investment {
   id        String   @id @unique @default(uuid())
   name      String   @unique
   amount    Int
@@ -37,14 +37,14 @@ model INVESTMENT {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  company   COMPANY  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
 }
 
-model CATEGORY {
+model Category {
   id        Int       @id @unique @default(autoincrement())
   name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  companies COMPANY[]
+  companies Company[]
 }
