@@ -19,6 +19,7 @@ model Company {
   description      String
   brandImage       String?
   actualInvestment BigInt       @default(0)
+  vitualInvestment BigInt       @default(0)
   revenue          BigInt       @default(0)
   totalEmployees   Int          @default(0)
   selectedCount    Int          @default(0)
@@ -32,7 +33,7 @@ model Company {
 model Investment {
   id        String   @id @unique @default(uuid())
   name      String   @unique
-  amount    Int
+  amount    BigInt
   comment   String
   password  String
   createdAt DateTime @default(now())
