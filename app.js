@@ -11,9 +11,9 @@ const app = express();
 app.use(core());
 app.use(express.json());
 
-app.use("/companyController", companyController);
-app.use("/comparisonController", comparisonController);
-app.use("/investmentController", investmentController);
+app.use("/api/companyController", companyController);
+app.use("/api/comparisonController", comparisonController);
+app.use("/api/investmentController", investmentController);
 
 app.use((err, req, res, next) => {
   console.log(err);
