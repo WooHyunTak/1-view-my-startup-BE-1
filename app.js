@@ -1,7 +1,7 @@
 import express from "express";
-import companyController from "./controllers/companyController.js";
-import comparisonController from "./controllers/comparisonController.js";
-import investmentController from "./controllers/investmentController.js";
+import companyRoute from "./routes/companyRoute.js";
+import comparisonRoute from "./routes/comparisonRoute.js";
+import investmentRoute from "./routes/investmentRoute.js";
 import { PORT } from "./env";
 import { core } from "core";
 import dotenv from "dotenv";
@@ -11,9 +11,9 @@ const app = express();
 app.use(core());
 app.use(express.json());
 
-app.use("/api/companyController", companyController);
-app.use("/api/comparisonController", comparisonController);
-app.use("/api/investmentController", investmentController);
+app.use("/api/companies", companyRoute);
+app.use("/api/comparisons", comparisonRoute);
+app.use("/api/investments", investmentRoute);
 
 app.use((err, req, res, next) => {
   console.log(err);
