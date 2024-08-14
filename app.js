@@ -2,13 +2,13 @@ import express from "express";
 import companyRoute from "./routes/companyRoute.js";
 import comparisonRoute from "./routes/comparisonRoute.js";
 import investmentRoute from "./routes/investmentRoute.js";
-import { PORT } from "./env";
-import { core } from "core";
+import { PORT } from "./env.js";
+import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(core());
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/companies", companyRoute);
