@@ -203,7 +203,7 @@ export const CATEGORY = [
 export const INVESTMENT = [
   {
     id: "i1j2k3l4-5m6n-7o8p-9q0r-1s2t3u4v5w6x",
-    name: "비즈니스온커뮤니케이션 초기 투자",
+    name: "김민수",
     amount: 200000000,
     comment: "비즈니스온커뮤니케이션의 초기 단계에 투자하여 안정적인 성장을 기대하고 있습니다.",
     password: "password123",
@@ -213,7 +213,7 @@ export const INVESTMENT = [
   },
   {
     id: "j2k3l4m5-6n7o-8p9q-0r1s-2t3u4v5w6x7y",
-    name: "테이블매니저 성장 투자",
+    name: "이지영",
     amount: 100000000,
     comment: "테이블매니저의 빠른 성장세를 보고 추가 투자를 결정했습니다.",
     password: "password234",
@@ -223,7 +223,7 @@ export const INVESTMENT = [
   },
   {
     id: "k3l4m5n6-7o8p-9q0r-1s2t-3u4v5w6x7y8z",
-    name: "직방 확장 투자",
+    name: "박준호",
     amount: 500000000,
     comment: "직방의 부동산 시장에서의 입지를 강화하기 위해 확장 투자를 진행했습니다.",
     password: "password345",
@@ -233,7 +233,7 @@ export const INVESTMENT = [
   },
   {
     id: "l4m5n6o7-8p9q-0r1s-2t3u-4v5w6x7y8z9a",
-    name: "오늘의집 추가 투자",
+    name: "최유진",
     amount: 300000000,
     comment: "오늘의집의 인테리어 플랫폼 성장 가능성을 높게 평가하여 추가 투자하였습니다.",
     password: "password456",
@@ -243,7 +243,7 @@ export const INVESTMENT = [
   },
   {
     id: "m5n6o7p8-9q0r-1s2t-3u4v-5w6x7y8z9a0b",
-    name: "리디북스 시장 확대 투자",
+    name: "장수빈",
     amount: 400000000,
     comment: "리디북스의 시장 확장과 글로벌 진출을 지원하기 위한 투자입니다.",
     password: "password567",
@@ -253,7 +253,7 @@ export const INVESTMENT = [
   },
   {
     id: "n6o7p8q9-0r1s-2t3u-4v5w-6x7y8z9a0b1c",
-    name: "마켓컬리 지속 성장 투자",
+    name: "윤서준",
     amount: 600000000,
     comment: "마켓컬리의 지속적인 성장과 시장 지배력을 강화하기 위한 투자입니다.",
     password: "password678",
@@ -263,7 +263,7 @@ export const INVESTMENT = [
   },
   {
     id: "o7p8q9r0-1s2t-3u4v-5w6x-7y8z9a0b1c2d",
-    name: "당근마켓 지역 확대 투자",
+    name: "한지우",
     amount: 450000000,
     comment: "당근마켓의 지역 확대와 더 많은 사용자 확보를 위한 투자입니다.",
     password: "password789",
@@ -273,7 +273,7 @@ export const INVESTMENT = [
   },
   {
     id: "p8q9r0s1-2t3u-4v5w-6x7y-8z9a0b1c2d3e",
-    name: "클래스101 콘텐츠 강화 투자",
+    name: "오혜진",
     amount: 350000000,
     comment: "클래스101의 교육 콘텐츠를 강화하기 위한 투자입니다.",
     password: "password890",
@@ -283,7 +283,7 @@ export const INVESTMENT = [
   },
   {
     id: "q9r0s1t2-3u4v-5w6x-7y8z-9a0b1c2d3e4f",
-    name: "와디즈 창의적 프로젝트 투자",
+    name: "강민재",
     amount: 250000000,
     comment: "와디즈를 통해 창의적인 프로젝트를 실현할 수 있도록 지원하기 위한 투자입니다.",
     password: "password901",
@@ -293,7 +293,7 @@ export const INVESTMENT = [
   },
   {
     id: "r0s1t2u3-4v5w-6x7y-8z9a-0b1c2d3e4f5g",
-    name: "배달의민족 해외 시장 진출 투자",
+    name: "정하은",
     amount: 800000000,
     comment: "배달의민족의 해외 시장 진출을 지원하기 위한 대규모 투자입니다.",
     password: "password012",
