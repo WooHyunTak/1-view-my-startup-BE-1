@@ -32,7 +32,7 @@ model Company {
 
 model Investment {
   id        String   @id @unique @default(uuid())
-  name      String   @unique
+  name      String
   amount    BigInt
   comment   String
   password  String

@@ -1,14 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { assert } from "superstruct";
 import { Uuid } from "../validations/validateUuid.js";
+import { stringifyBigInt } from "../utils/stringifyBigInt.js";
 
 const prisma = new PrismaClient();
-
-function bigIntToString(data) {
-  return JSON.stringify(data, (key, value) => {
-    return typeof value === "bigint" ? value.toString() : value;
-  });
-}
 
 export const getCompanies = async (req, res) => {
   const { keyword = "" } = req.query;
@@ -73,7 +68,7 @@ export const getCompanies = async (req, res) => {
     companies.length === limit ? companies[companies.length - 1].id : null;
   console.log(companies);
 
-  res.send({ nextCursor, list: bigIntToString });
+  res.status(200).send({ nextCursor, list: bigIntToString });
 };
 
 export const getCompanyById = async (req, res) => {
@@ -96,7 +91,7 @@ export const getCompanyById = async (req, res) => {
     },
   });
 
-  const parsedResult = JSON.parse(bigIntToString(company));
+  const parsedResult = JSON.parse(stringifyBigInt(company));
 
-  res.send(parsedResult);
+  res.status(200).send(parsedResult);
 };

@@ -191,6 +191,30 @@ export const COMPANY = [
     ],
     investments: [
       {
+        name: "김철수",
+        amount: 500000000,
+        comment: "당근마켓의 중고거래 플랫폼 확장을 지원하기 위한 투자입니다.",
+        password: "password987",
+        createdAt: "2024-07-25T10:00:00Z",
+        updatedAt: "2024-07-25T10:00:00Z",
+      },
+      {
+        name: "박영수",
+        amount: 300000000,
+        comment: "당근마켓의 사용자 경험 개선 프로젝트에 대한 투자입니다.",
+        password: "password654",
+        createdAt: "2024-07-28T11:45:00Z",
+        updatedAt: "2024-07-28T11:45:00Z",
+      },
+      {
+        name: "최민수",
+        amount: 400000000,
+        comment: "당근마켓의 글로벌 시장 진출을 위한 투자입니다.",
+        password: "password321",
+        createdAt: "2024-08-01T09:20:00Z",
+        updatedAt: "2024-08-01T09:20:00Z",
+      },
+      {
         name: "이영희",
         amount: 450000000,
         comment:
