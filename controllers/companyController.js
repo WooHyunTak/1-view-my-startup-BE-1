@@ -4,6 +4,12 @@ import { Uuid } from "../validations/validateUuid.js";
 
 const prisma = new PrismaClient();
 
+function bigIntToString(data) {
+  return JSON.stringify(data, (key, value) => {
+    return typeof value === "bigint" ? value.toString() : value;
+  });
+}
+
 export const getCompanies = async (req, res) => {
   const { keyword = "" } = req.query;
   const { lastId, limit = 10, orderBy } = req.query;
@@ -77,10 +83,20 @@ export const getCompanyById = async (req, res) => {
   const company = await prisma.company.findUniqueOrThrow({
     where: { id },
     include: {
-      investments: true,
-      categories: true,
+      investments: {
+        select: {
+          id: true,
+          name: true,
+          amount: true,
+          comment: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
     },
   });
 
-  res.send(company);
+  const parsedResult = JSON.parse(bigIntToString(company));
+
+  res.send(parsedResult);
 };

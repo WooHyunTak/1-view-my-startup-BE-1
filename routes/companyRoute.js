@@ -1,10 +1,10 @@
 import express from "express";
 import * as company from "../controllers/companyController.js";
-import { asyncErrorHandler } from "../validations/asyncErrorHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const app = express.Router();
 
-app.get("/", asyncErrorHandler(company.getCompanies));
-app.get("/:id", asyncErrorHandler(company.getCompanyById));
+app.get("/", asyncHandler(company.getCompanies));
+app.get("/:id", asyncHandler(company.getCompanyById));
 
 export default app;
