@@ -4,3 +4,7 @@ node_modules
 seed.js
 
 mock.js
+
+http
+
+/prisma/migrations/
