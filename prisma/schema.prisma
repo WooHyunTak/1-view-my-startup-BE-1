@@ -14,20 +14,20 @@ datasource db {
 }
 
 model Company {
-  id               String       @id @unique @default(uuid())
-  name             String       @unique
-  description      String
-  brandImage       String?
-  actualInvestment BigInt       @default(0)
-  vitualInvestment BigInt       @default(0)
-  revenue          BigInt       @default(0)
-  totalEmployees   Int          @default(0)
-  selectedCount    Int          @default(0)
-  comparedCount    Int          @default(0)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  investments      Investment[]
-  categories       Category[]
+  id                String       @id @unique @default(uuid())
+  name              String       @unique
+  description       String
+  brandImage        String?
+  actualInvestment  BigInt       @default(0)
+  virtualInvestment BigInt       @default(0)
+  revenue           BigInt       @default(0)
+  totalEmployees    Int          @default(0)
+  selectedCount     Int          @default(0)
+  comparedCount     Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  investments       Investment[]
+  categories        Category[]
 }
 
 model Investment {

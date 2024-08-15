@@ -43,11 +43,26 @@ export const getCompanies = async (req, res) => {
     take: parseInt(limit),
     skip: lastId ? 1 : 0,
     cursor: lastId ? { id: lastId } : undefined,
+    select: {
+      name: true,
+      description: true,
+      actualInvestment: true,
+      revenue: true,
+      totalEmployees: true,
+      categories: { select: { name: true } },
+    },
   });
+
+  const bigIntToString = companies.map((company) => ({
+    ...company,
+
+    actualInvestment: company.actualInvestment.toString(),
+    revenue: company.revenue.toString(),
+  }));
 
   const nextCursor =
     companies.length === limit ? companies[companies.length - 1].id : null;
   console.log(companies);
 
-  res.send({ nextCursor, list: companies });
+  res.send({ nextCursor, list: bigIntToString });
 };

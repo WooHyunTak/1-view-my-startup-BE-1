@@ -2,6 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 import { COMPANY, CATEGORY } from "./mock.js";
 
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 const prisma = new PrismaClient();
 
 async function main() {
