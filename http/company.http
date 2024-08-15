@@ -1,3 +1,39 @@
 ### get company
 
 GET http://localhost:3000/api/companies
+
+
+### get company by order lowestInvestment
+GET http://localhost:3000/api/companies?orderBy=lowestInvestment
+
+### get company by order highestInvestment
+
+GET http://localhost:3000/api/companies?orderBy=highestInvestment
+
+
+### get company by order highestRevenue
+
+GET http://localhost:3000/api/companies?orderBy=highestRevenue
+
+### get company by order lowestRevenue
+
+GET http://localhost:3000/api/companies?orderBy=lowestRevenue
+
+### get company by order highestEmployees
+
+GET http://localhost:3000/api/companies?orderBy=highestEmployees
+
+### get company by order lowestEmployees
+
+GET http://localhost:3000/api/companies?orderBy=lowestEmployees
+
+
+### get company by keyword
+
+GET http://localhost:3000/api/companies?orderBy=lowestEmployees&keyword=마켓
+
+
+
+### get company by id
+
+GET http://localhost:3000/api/companies/edad61d1-bcec-46a2-a504-988db7d1b132

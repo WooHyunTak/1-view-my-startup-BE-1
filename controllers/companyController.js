@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import { assert } from "superstruct";
+import { Uuid } from "../validations/validateUuid.js";
 
 const prisma = new PrismaClient();
 
 export const getCompanies = async (req, res) => {
   const { keyword = "" } = req.query;
-  const { lastId, limit = 5, orderBy } = req.query;
+  const { lastId, limit = 10, orderBy } = req.query;
 
   let sortOption;
   switch (orderBy) {
@@ -44,6 +46,7 @@ export const getCompanies = async (req, res) => {
     skip: lastId ? 1 : 0,
     cursor: lastId ? { id: lastId } : undefined,
     select: {
+      id: true,
       name: true,
       description: true,
       actualInvestment: true,
@@ -65,4 +68,19 @@ export const getCompanies = async (req, res) => {
   console.log(companies);
 
   res.send({ nextCursor, list: bigIntToString });
+};
+
+export const getCompanyById = async (req, res) => {
+  const { id } = req.params;
+  assert(id, Uuid);
+
+  const company = await prisma.company.findUniqueOrThrow({
+    where: { id },
+    include: {
+      investments: true,
+      categories: true,
+    },
+  });
+
+  res.send(company);
 };
