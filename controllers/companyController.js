@@ -135,7 +135,7 @@ export const getInvestmentStatus = async (req, res) => {
       : {},
     orderBy: [
       orderBy,
-      { id: "asc" }, // 같은 값을 가지는 항목들에 대해 고유 ID로 정렬하여 항상 동일한 순서를 유지
+      { id: "desc" }, // 같은 값을 가지는 항목들에 대해 고유 ID로 정렬하여 항상 동일한 순서를 유지
     ],
     take: parseInt(take), // 가져올 항목 수
     include: { investments: true, categories: true },
