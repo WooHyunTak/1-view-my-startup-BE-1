@@ -1,7 +1,16 @@
 node_modules
-# Keep environment variables out of version control
 .env
+<<<<<<< HEAD
 seed.js
 mock.js
 req.http
 prisma/migrations
+=======
+
+/prisma/migrations/
+prisma/seed.js
+prisma/mock.js
+
+http
+
+>>>>>>> 376058e323a35f15782cc73d6be8fe13e9bb1a0b

@@ -56,83 +56,6 @@ export async function getComparison(req, res) {
   }
 }
 
-export async function getCompanyRank(req, res) {
-  const { id } = req.params;
-  const { orderBy, scending } = req.query;
-  let orderByQuery = {};
-  switch (orderBy) {
-    case "revenue":
-      if (scending === "asc") {
-        orderByQuery = { revenue: "asc" };
-      } else {
-        orderByQuery = { revenue: "desc" };
-      }
-      break;
-    case "totalEmployees":
-      if (scending === "asc") {
-        orderByQuery = { totalEmployees: "asc" };
-      } else {
-        orderByQuery = { totalEmployees: "desc" };
-      }
-      break;
-    default:
-      orderByQuery = { revenue: "asc" };
-  }
-
-  let returnData = {};
-
-  const prevCompany = {
-    orderBy: orderByQuery,
-    where: {
-      id: {
-        lt: id,
-      },
-    },
-    take: 2,
-  };
-
-  const prevCompanyData = await fetchCompanies(prevCompany);
-
-  if (prevCompany.length < 2) {
-    const myCompany = {
-      orderBy: orderByQuery,
-      cursor: {
-        id: id,
-      },
-      take: 4,
-    };
-    const myCompanyData = await fetchCompanies(myCompany);
-    returnData = [...prevCompanyData, ...myCompanyData];
-    res.send(returnData);
-    return;
-  }
-
-  const myCompanyPromise = prisma.company.findUniqueOrThrow({
-    where: { id },
-  });
-
-  const nextCompany = {
-    orderBy: orderByQuery,
-    where: {
-      id: {
-        gt: id,
-      },
-    },
-    take: 2,
-  };
-
-  const nextCompanyPromise = fetchCompanies(nextCompany);
-
-  const [myCompany, nextCompanyData] = await Promise.all([
-    myCompanyPromise,
-    nextCompanyPromise,
-  ]);
-
-  const myCompanyData = serializeBigInt(myCompany);
-  returnData = [...prevCompanyData, myCompanyData, ...nextCompanyData];
-  res.send(returnData);
-}
-
 export async function getCompaniesRank(req, res) {
   const { id } = req.params;
   const { orderBy, scending } = req.query;
@@ -160,31 +83,40 @@ export async function getCompaniesRank(req, res) {
     WITH RankedCompanies AS (
       SELECT
         *,
-        ROW_NUMBER() OVER (ORDER BY revenue DESC) AS rank
+        ROW_NUMBER() OVER (ORDER BY revenue ASC) AS rank
       FROM "public"."Company"
     ),
     TargetRank AS (
       SELECT rank
       FROM RankedCompanies
       WHERE id = ${id}
+    ),
+    RackRange AS (
+       SELECT rank
+       FROM TargetRank
     )
-    SELECT * FROM RankedCompanies
-    WHERE rank BETWEEN (SELECT rank - 2 FROM TargetRank) AND (SELECT rank + 2 FROM TargetRank)
-    ORDER BY ${orderByQuery};
+    SELECT * FROM (
+      SELECT * FROM RankedCompanies
+      WHERE rank BETWEEN (SELECT rank - 2 FROM RackRange) AND (SELECT rank + 2 FROM RackRange)
+
+      UNION
+
+      SELECT * FROM RankedCompanies
+      where rank > (select rank from TargetRank)
+      order by revenue
+      limit 5
+    ) AS combined
+    ORDER BY ${orderByQuery}
+    LIMIT 5
     `;
     res.send(serializeBigInt(data));
   } catch (e) {
-    res.status(404).send({ message: e.message });
+    res.status(400).send({ message: e.message });
   }
 }
 
 export async function getSelections(req, res) {
-  const {
-    orderBy = "revenue",
-    scending = "asc",
-    limit = 10,
-    cursor = "",
-  } = req.query;
+  const { orderBy = "", scending = "asc", limit = 10, cursor = "" } = req.query;
   let orderByQuery = {};
   switch (orderBy) {
     case "selectedCount":
@@ -202,7 +134,7 @@ export async function getSelections(req, res) {
       }
       break;
     default:
-      orderByQuery = { selectedCount: "asc" };
+      orderByQuery = { selectedCount: "desc" };
   }
 
   const compared = {
