@@ -79,3 +79,42 @@ export const updateInvestment = async (req, res) => {
     res.send(transformBigInt(updatedInvestment));
   });
 };
+
+// 가상 투자 삭제
+export const deleteInvestment = async (req, res) => {
+  // 삭제하려는 투자 ID
+  const { id } = req.params;
+  // 삭제를 위한 비밀번호
+  const { password } = req.body;
+
+  // 삭제하려는 투자 가져오기
+  const investment = await prisma.investment.findUniqueOrThrow({
+    where: { id },
+  });
+
+  // 투자가 존재하지 않거나 비밀번호가 일치하지 않는 경우
+  if (!investment || investment.password !== password) {
+    return res.status(403).send({ message: "Incorrect password or investment not found." });
+  }
+
+  await prisma.$transaction(async (prisma) => {
+    // 투자 정보 삭제
+    await prisma.investment.delete({
+      where: { id },
+    });
+
+    // 해당 기업의 virtualInvestment 금액 감소
+    await prisma.company.update({
+      where: { id: investment.companyId },
+      data: {
+        virtualInvestment: {
+          // 기존 amount를 virtualInvestment에서 뺌
+          decrement: investment.amount,
+        },
+      },
+    });
+
+    // 성공시 메시지 출력
+    res.send({ message: "Investment deleted successfully" });
+  });
+};
