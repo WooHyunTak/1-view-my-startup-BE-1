@@ -68,9 +68,8 @@ export async function getCompaniesRank(req, res) {
     const data = await prisma.$queryRaw`
     WITH RankedCompanies AS (
       SELECT
-      id,
-      revenue,
-        ROW_NUMBER() OVER (ORDER BY ${orderByRank} ) AS rank
+      *,
+      ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
       FROM "public"."Company"
     ),
     TargetRank AS (
@@ -93,7 +92,7 @@ export async function getCompaniesRank(req, res) {
       order by rank 
       limit 5
     ) AS combined
-    ORDER BY rank ${orderbyView}
+    ORDER BY rank --${orderbyView}
     LIMIT 5
   `;
     res.send(serializeBigInt(data));
@@ -103,47 +102,39 @@ export async function getCompaniesRank(req, res) {
 }
 
 export async function getSelections(req, res) {
-  const { orderBy = "", scending = "asc", limit = 5, cursor = "" } = req.query;
-  let orderByQuery = {};
-  switch (orderBy) {
-    case "selectedCount":
-      if (scending === "asc") {
-        orderByQuery = { selectedCount: "asc" };
-      } else {
-        orderByQuery = { selectedCount: "desc" };
-      }
-      break;
-    case "comparedCount":
-      if (scending === "asc") {
-        orderByQuery = { comparedCount: "asc" };
-      } else {
-        orderByQuery = { comparedCount: "desc" };
-      }
-      break;
-    default:
-      orderByQuery = { selectedCount: "desc" };
-  }
+  const { scending = "asc", limit = 10, cursor = "" } = req.query;
+  const orderBy = `"${req.query.orderBy || "selectedCount"}"`;
+  const orderByRank = Prisma.sql([orderBy]);
+  const orderByScending = Prisma.sql([scending]);
+  try {
+    const response = await prisma.$queryRaw`
+    WITH RankedCompanies AS (
+      SELECT
+        *,
+        ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
+      FROM "public"."Company"
+      where id > ${cursor ? Prisma.sql`${cursor}` : ""}
+      LIMIT ${Prisma.sql`${limit + 1}`}
+    )
+    SELECT * FROM RankedCompanies
+    ORDER BY rank ${orderByScending}
+    -- order by "selectedCount"
+    `;
+    const data = serializeBigInt(response);
 
-  const compared = {
-    orderBy: orderByQuery,
-    take: limit + 1,
-    skip: cursor ? 1 : 0,
-    cursor: cursor ? { id: cursor } : undefined,
-  };
+    if (response) {
+      const nextData = data.length > limit;
+      const nextCursorId = nextData ? data[limit - 1].id : null;
 
-  const data = await fetchCompanies(compared);
-
-  if (data) {
-    const nextData = data.length > limit;
-    console.log(nextData);
-    const nextCursorId = nextData ? data[limit - 1].id : null;
-
-    const returnData = {
-      list: data.slice(0, limit),
-      nextCursor: nextCursorId,
-    };
-    res.send(returnData);
-  } else {
-    res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
+      const returnData = {
+        list: data.slice(0, limit),
+        nextCursor: nextCursorId,
+      };
+      res.send(returnData);
+    } else {
+      res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
+    }
+  } catch (error) {
+    res.send({ message: error.message });
   }
 }
