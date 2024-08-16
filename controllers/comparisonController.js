@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { serializeBigInt } from "../utils/serializeBigInt.js";
 
 const prisma = new PrismaClient();
@@ -58,32 +59,18 @@ export async function getComparison(req, res) {
 
 export async function getCompaniesRank(req, res) {
   const { id } = req.params;
-  const { orderBy, scending } = req.query;
-  let orderByQuery = {};
-  switch (orderBy) {
-    case "revenue":
-      if (scending === "asc") {
-        orderByQuery = "revenue ASC";
-      } else {
-        orderByQuery = "revenue DESC";
-      }
-      break;
-    case "totalEmployees":
-      if (scending === "asc") {
-        orderByQuery = "totalEmployees ASC";
-      } else {
-        orderByQuery = "totalEmployees DESC";
-      }
-      break;
-    default:
-      orderByQuery = "revenue ASC";
-  }
+  //기본값
+  const { orderBy = "revenue", scending = "ASC" } = req.query;
+  //그냥 템플릿을 사용하면 프리즈마에서 sql로 인식을 못함 prisma.sql로 변환
+  const orderByRank = Prisma.sql([orderBy]);
+  const orderbyView = Prisma.sql([scending]);
   try {
     const data = await prisma.$queryRaw`
     WITH RankedCompanies AS (
       SELECT
-        *,
-        ROW_NUMBER() OVER (ORDER BY revenue ASC) AS rank
+      id,
+      revenue,
+        ROW_NUMBER() OVER (ORDER BY ${orderByRank} ) AS rank
       FROM "public"."Company"
     ),
     TargetRank AS (
@@ -100,15 +87,15 @@ export async function getCompaniesRank(req, res) {
       WHERE rank BETWEEN (SELECT rank - 2 FROM RackRange) AND (SELECT rank + 2 FROM RackRange)
 
       UNION
-
+      -- 선택 기업이 상위 2위 이상이라 상위의 2개의 로우값이 부족할 경우 석택기업을 포함한 5개의 기업을 보장함
       SELECT * FROM RankedCompanies
       where rank > (select rank from TargetRank)
-      order by revenue
+      order by rank 
       limit 5
     ) AS combined
-    ORDER BY ${orderByQuery}
+    ORDER BY rank ${orderbyView}
     LIMIT 5
-    `;
+  `;
     res.send(serializeBigInt(data));
   } catch (e) {
     res.status(400).send({ message: e.message });
