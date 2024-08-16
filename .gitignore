@@ -1,10 +1,9 @@
 node_modules
 .env
 
-seed.js
-
-mock.js
+/prisma/migrations/
+prisma/seed.js
+prisma/mock.js
 
 http
 
-/prisma/migrations/
