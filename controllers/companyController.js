@@ -35,10 +35,7 @@ export const getCompanies = async (req, res) => {
   }
 
   const searchQuery = {
-    OR: [
-      { name: { contains: keyword } },
-      { description: { contains: keyword } },
-    ],
+    OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
   };
 
   const companies = await prisma.company.findMany({
@@ -65,8 +62,7 @@ export const getCompanies = async (req, res) => {
     revenue: company.revenue.toString(),
   }));
 
-  const nextCursor =
-    companies.length === limit ? companies[companies.length - 1].id : null;
+  const nextCursor = companies.length === limit ? companies[companies.length - 1].id : null;
 
   res.status(200).send({ nextCursor, list: bigIntToString });
 };
@@ -87,12 +83,7 @@ export const getCompanyById = async (req, res) => {
 
 // 전체 기업 투자 현황 조회
 export const getInvestmentStatus = async (req, res) => {
-  const {
-    sortBy = "virtualInvestment",
-    order = "desc",
-    cursor,
-    take = 10,
-  } = req.query;
+  const { sortBy = "virtualInvestment", order = "desc", cursor, take = 10 } = req.query;
 
   // 정렬 기준에 따라 정렬 옵션을 설정하는 switch 문
   let orderBy = {};
@@ -156,9 +147,7 @@ export const getInvestmentStatus = async (req, res) => {
   // undefined: 변수 선언 되었지만 아직 값이 할당되지 않았을 때 자동으로 부여
   // 프로그래머가 의도적으로 undefined를 할당하는 경우는 거의 없음
   const nextCursor =
-    companies.length === parseInt(take)
-      ? companies[companies.length - 1].id
-      : null;
+    companies.length === parseInt(take) ? companies[companies.length - 1].id : null;
 
   res.status(200).send({ nextCursor, list: transformBigInt(status) });
 };
