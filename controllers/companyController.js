@@ -34,10 +34,7 @@ export const getCompanies = async (req, res) => {
   }
 
   const searchQuery = {
-    OR: [
-      { name: { contains: keyword } },
-      { description: { contains: keyword } },
-    ],
+    OR: [{ name: { contains: keyword } }, { description: { contains: keyword } }],
   };
 
   const companies = await prisma.company.findMany({
@@ -64,8 +61,7 @@ export const getCompanies = async (req, res) => {
     revenue: company.revenue.toString(),
   }));
 
-  const nextCursor =
-    companies.length === limit ? companies[companies.length - 1].id : null;
+  const nextCursor = companies.length === limit ? companies[companies.length - 1].id : null;
 
   res.status(200).send({ nextCursor, list: bigIntToString });
 };
