@@ -1,5 +1,2 @@
-export function stringifyBigInt(data) {
-  return JSON.stringify(data, (key, value) => {
-    return typeof value === "bigint" ? value.toString() : value;
-  });
-}
+export const replaceBigIntToString = (key, value) =>
+  typeof value === "bigint" ? value.toString() : value;

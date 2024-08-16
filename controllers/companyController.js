@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { assert } from "superstruct";
-import { Uuid } from "../validations/validateUuid.js";
-import { stringifyBigInt } from "../utils/stringifyBigInt.js";
+import { Uuid } from "../structs/validateUuid.js";
+import { replaceBigIntToString } from "../utils/stringifyBigInt.js";
 
 const prisma = new PrismaClient();
 
@@ -77,21 +77,10 @@ export const getCompanyById = async (req, res) => {
 
   const company = await prisma.company.findUniqueOrThrow({
     where: { id },
-    include: {
-      investments: {
-        select: {
-          id: true,
-          name: true,
-          amount: true,
-          comment: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
-    },
   });
 
-  const parsedResult = JSON.parse(stringifyBigInt(company));
+  const bigIntToString = JSON.stringify(company, replaceBigIntToString);
 
-  res.status(200).send(parsedResult);
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).send(bigIntToString);
 };
