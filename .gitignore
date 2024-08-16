@@ -1,3 +1,7 @@
 node_modules
 # Keep environment variables out of version control
 .env
+seed.js
+mock.js
+req.http
+prisma/migrations
