@@ -116,7 +116,7 @@ export async function getCompaniesRank(req, res) {
 }
 
 export async function getSelections(req, res) {
-  const { orderBy = "", scending = "asc", limit = 10, cursor = "" } = req.query;
+  const { orderBy = "", scending = "asc", limit = 5, cursor = "" } = req.query;
   let orderByQuery = {};
   switch (orderBy) {
     case "selectedCount":
@@ -147,8 +147,9 @@ export async function getSelections(req, res) {
   const data = await fetchCompanies(compared);
 
   if (data) {
-    const nextData = compared.length > limit;
-    const nextCursorId = nextData ? compared[limit - 1].id : null;
+    const nextData = data.length > limit;
+    console.log(nextData);
+    const nextCursorId = nextData ? data[limit - 1].id : null;
 
     const returnData = {
       list: data.slice(0, limit),
