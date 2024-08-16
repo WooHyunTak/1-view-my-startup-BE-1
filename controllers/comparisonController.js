@@ -118,7 +118,6 @@ export async function getSelections(req, res) {
     )
     SELECT * FROM RankedCompanies
     ORDER BY rank ${orderByScending}
-    -- order by "selectedCount"
     `;
     const data = serializeBigInt(response);
 
