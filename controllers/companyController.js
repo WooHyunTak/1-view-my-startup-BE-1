@@ -66,7 +66,6 @@ export const getCompanies = async (req, res) => {
 
   const nextCursor =
     companies.length === limit ? companies[companies.length - 1].id : null;
-  console.log(companies);
 
   res.status(200).send({ nextCursor, list: bigIntToString });
 };
