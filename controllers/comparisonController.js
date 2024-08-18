@@ -13,25 +13,25 @@ const fetchCompanies = async (query) => {
 
 export async function getComparison(req, res) {
   const { comparisonIds } = req.body;
-  const { orderBy = "revenue", scending = "asc" } = req.query;
+  const { sortBy = "revenue", order = "asc" } = req.query;
   let orderByQuery = {};
-  switch (orderBy) {
+  switch (sortBy) {
     case "revenue":
-      if (scending === "asc") {
+      if (order === "asc") {
         orderByQuery = { revenue: "asc" };
       } else {
         orderByQuery = { revenue: "desc" };
       }
       break;
     case "totalEmployees":
-      if (scending === "asc") {
+      if (order === "asc") {
         orderByQuery = { totalEmployees: "asc" };
       } else {
         orderByQuery = { totalEmployees: "desc" };
       }
       break;
     case "actualInvestment":
-      if (scending === "asc") {
+      if (order === "asc") {
         orderByQuery = { actualInvestment: "asc" };
       } else {
         orderByQuery = { actualInvestment: "desc" };
@@ -60,10 +60,10 @@ export async function getComparison(req, res) {
 export async function getCompaniesRank(req, res) {
   const { id } = req.params;
   //기본값
-  const { orderBy = "revenue", scending = "ASC" } = req.query;
+  const { sortBy = "revenue", order = "ASC" } = req.query;
   //그냥 템플릿을 사용하면 프리즈마에서 sql로 인식을 못함 prisma.sql로 변환
-  const orderByRank = Prisma.sql([orderBy]);
-  const orderbyView = Prisma.sql([scending]);
+  const orderByRank = Prisma.sql([sortBy]);
+  const orderbyView = Prisma.sql([order]);
   try {
     const data = await prisma.$queryRaw`
     WITH RankedCompanies AS (
@@ -102,10 +102,10 @@ export async function getCompaniesRank(req, res) {
 }
 
 export async function getSelections(req, res) {
-  const { scending = "asc", limit = 10, cursor = "" } = req.query;
-  const orderBy = `"${req.query.orderBy || "selectedCount"}"`;
-  const orderByRank = Prisma.sql([orderBy]);
-  const orderByScending = Prisma.sql([scending]);
+  const { order = "asc", limit = 10, cursor = "" } = req.query;
+  const sortBy = `"${req.query.sortBy || "selectedCount"}"`;
+  const orderByRank = Prisma.sql([sortBy]);
+  const orderByScending = Prisma.sql([order]);
   try {
     const response = await prisma.$queryRaw`
     WITH RankedCompanies AS (
