@@ -102,7 +102,8 @@ export async function getCompaniesRank(req, res) {
 }
 
 export async function getSelections(req, res) {
-  const { order = "asc", limit = 10, cursor = "" } = req.query;
+  const { order = "asc", limit = 10, page = 0 } = req.query;
+  const offset = page ? (page - 1) * limit : 0;
   const sortBy = `"${req.query.sortBy || "selectedCount"}"`;
   const orderByRank = Prisma.sql([sortBy]);
   const orderByScending = Prisma.sql([order]);
@@ -113,8 +114,8 @@ export async function getSelections(req, res) {
         *,
         ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
       FROM "public"."Company"
-      where id > ${cursor ? Prisma.sql`${cursor}` : ""}
-      LIMIT ${Prisma.sql`${limit + 1}`}
+      LIMIT ${Prisma.sql`${limit}`}
+      OFFSET ${offset}
     )
     SELECT * FROM RankedCompanies
     ORDER BY rank ${orderByScending}
