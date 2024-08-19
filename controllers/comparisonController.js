@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { serializeBigInt } from "../utils/serializeBigInt.js";
+import transformBigInt from "../utils/transformBigInt.js";
 
 const prisma = new PrismaClient();
 
@@ -101,7 +102,7 @@ export async function getCompaniesRank(req, res) {
   }
 }
 
-export async function getSelections(req, res) {
+export async function getSelections_v(req, res) {
   const { order = "asc", limit = 10, page = 0 } = req.query;
   //page가 false이면 0 -> offset없음
   const offset = page ? (page - 1) * limit : 0;
@@ -122,6 +123,60 @@ export async function getSelections(req, res) {
       OFFSET ${offset}
     )
     SELECT * FROM RankedCompanies
+    -- 순위를 정의하는 기준과 다른 데이터의 정렬기준
+    ORDER BY rank ${orderByScending}
+    `.then((res) => serializeBigInt(res));
+
+    //쿼리가 2가지라 동시 호출후 Promise.all await 처리
+    const [count, data] = await Promise.all([totalCount, response]);
+
+    if (data) {
+      const returnData = {
+        list: data,
+        totalCount: count,
+      };
+      res.send(returnData);
+    } else {
+      res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
+    }
+  } catch (error) {
+    res.send({ message: error.message });
+  }
+}
+
+export async function getSelections(req, res) {
+  const { order = "asc", limit = 10, page = 0 } = req.query;
+  //page가 false이면 0 -> offset없음
+  const offset = page ? (page - 1) * limit : 0;
+  //순위를 정의하는 기준
+  const sortBy = `"${req.query.sortBy || "selectedCount"}"`;
+  const orderByRank = Prisma.sql([sortBy]);
+  const orderByScending = Prisma.sql([order]);
+  try {
+    const totalCount = await prisma.company.count();
+
+    const response = prisma.$queryRaw`
+    WITH RankedCompanies AS (
+      SELECT
+        c.*,
+        ROW_NUMBER() OVER (ORDER BY c.${orderByRank} DESC) AS rank
+      FROM "public"."Company" c
+      LIMIT 5
+      OFFSET ${offset}
+    )
+    SELECT
+      rc.*,
+      rc.rank,
+      json_agg(cat.name) AS categories
+    FROM RankedCompanies rc
+    LEFT JOIN "public"."_CompanyCategories" cc ON rc.id::text = cc."B"
+    LEFT JOIN "public"."Category" cat ON cc."A"::text = cat.id::text
+    GROUP BY rc.id,rc.rank, rc."name", rc."description",
+	rc."brandImage", rc."actualInvestment", rc."virtualInvestment",
+	rc."revenue",
+	rc."totalEmployees",
+	rc."selectedCount",rc."comparedCount",rc."createdAt",
+	rc."updatedAt"
     -- 순위를 정의하는 기준과 다른 데이터의 정렬기준
     ORDER BY rank ${orderByScending}
     `.then((res) => serializeBigInt(res));

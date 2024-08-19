@@ -27,7 +27,7 @@ model Company {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   investments       Investment[]
-  categories        Category[]
+  categories        Category[]   @relation("CompanyCategories")
 }
 
 model Investment {
@@ -47,5 +47,5 @@ model Category {
   name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  companies Company[]
+  companies Company[] @relation("CompanyCategories")
 }
