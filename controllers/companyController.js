@@ -63,6 +63,7 @@ export const getCompanyById = async (req, res) => {
 
   const company = await prisma.company.findUniqueOrThrow({
     where: { id },
+    include: { investments: true, categories: true },
   });
 
   const bigIntToString = JSON.stringify(company, replaceBigIntToString);
@@ -126,12 +127,10 @@ export const getInvestmentStatus = async (req, res) => {
   const totalPage = Math.ceil(totalCompanies / limit); // 전체 페이지 수 계산
   const hasNextPage = page < totalPage; // 다음 페이지가 있는지 확인
 
-  res
-    .status(200)
-    .send({
-      currentPage: page,
-      totalPage: totalPage,
-      hasNextPage: hasNextPage,
-      list: status,
-    });
+  res.status(200).send({
+    currentPage: page,
+    totalPage: totalPage,
+    hasNextPage: hasNextPage,
+    list: status,
+  });
 };
