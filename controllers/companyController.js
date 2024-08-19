@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { assert } from "superstruct";
 import { Uuid } from "../structs/validateUuid.js";
 import { replaceBigIntToString } from "../utils/stringifyBigInt.js";
-import transformBigInt from "../utils/transformBigInt.js";
 
 const prisma = new PrismaClient();
 
@@ -147,5 +146,5 @@ export const getInvestmentStatus = async (req, res) => {
       ? companies[companies.length - 1].id
       : null;
 
-  res.status(200).send({ nextCursor, list: transformBigInt(status) });
+  res.status(200).send({ nextCursor, list: status });
 };
