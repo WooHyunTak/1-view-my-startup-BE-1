@@ -103,32 +103,36 @@ export async function getCompaniesRank(req, res) {
 
 export async function getSelections(req, res) {
   const { order = "asc", limit = 10, page = 0 } = req.query;
+  //page가 false이면 0 -> offset없음
   const offset = page ? (page - 1) * limit : 0;
+  //순위를 정의하는 기준
   const sortBy = `"${req.query.sortBy || "selectedCount"}"`;
   const orderByRank = Prisma.sql([sortBy]);
   const orderByScending = Prisma.sql([order]);
   try {
+    const totalCount = await prisma.company.count();
+
     const response = await prisma.$queryRaw`
     WITH RankedCompanies AS (
       SELECT
         *,
         ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
       FROM "public"."Company"
-      LIMIT ${Prisma.sql`${limit}`}
+      LIMIT ${Prisma.sql`${parseInt(limit)}`}
       OFFSET ${offset}
     )
     SELECT * FROM RankedCompanies
+    -- 순위를 정의하는 기준과 다른 데이터의 정렬기준
     ORDER BY rank ${orderByScending}
-    `;
-    const data = serializeBigInt(response);
+    `.then((res) => serializeBigInt(res));
 
-    if (response) {
-      const nextData = data.length > limit;
-      const nextCursorId = nextData ? data[limit - 1].id : null;
+    //쿼리가 2가지라 동시 호출후 Promise.all await 처리
+    const [count, data] = await Promise.all([totalCount, response]);
 
+    if (data) {
       const returnData = {
-        list: data.slice(0, limit),
-        nextCursor: nextCursorId,
+        list: data,
+        totalCount: count,
       };
       res.send(returnData);
     } else {
