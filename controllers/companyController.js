@@ -8,12 +8,12 @@ const prisma = new PrismaClient();
 
 export const getCompanies = async (req, res) => {
   const { keyword = "" } = req.query;
-  const {
-    cursor,
-    limit = 10,
-    sortBy = "actualInvestment",
-    order = "desc",
-  } = req.query;
+  const { sortBy = "actualInvestment", order = "desc" } = req.query;
+  const limit = parseInt(req.query.limit) || 10;
+  const page = parseInt(req.query.page) || 1;
+
+  // page가 1이면 offset 0
+  const offset = (page - 1) * limit;
 
   const sortOption = { [sortBy]: order };
 
@@ -24,22 +24,28 @@ export const getCompanies = async (req, res) => {
     ],
   };
 
-  const companies = await prisma.company.findMany({
-    where: searchQuery,
-    orderBy: [sortOption, { id: "desc" }],
-    take: parseInt(limit),
-    skip: cursor ? 1 : 0,
-    cursor: cursor ? { id: cursor } : undefined,
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      actualInvestment: true,
-      revenue: true,
-      totalEmployees: true,
-      categories: { select: { name: true } },
-    },
-  });
+  //2가지 쿼리 $transaction 이용해서 데이터 일관성 유지
+  //totalCount , company list
+  const [totalCount, companies] = await prisma.$transaction([
+    prisma.company.count({
+      where: searchQuery,
+    }),
+    prisma.company.findMany({
+      where: searchQuery,
+      orderBy: [sortOption, { id: "desc" }],
+      take: limit,
+      skip: offset || 0,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        actualInvestment: true,
+        revenue: true,
+        totalEmployees: true,
+        categories: { select: { name: true } },
+      },
+    }),
+  ]);
 
   const bigIntToString = companies.map((company) => ({
     ...company,
@@ -48,10 +54,7 @@ export const getCompanies = async (req, res) => {
     revenue: company.revenue.toString(),
   }));
 
-  const nextCursor =
-    companies.length === limit ? companies[companies.length - 1].id : null;
-
-  res.status(200).send({ nextCursor, list: bigIntToString });
+  res.status(200).send({ totalCount, list: bigIntToString });
 };
 
 export const getCompanyById = async (req, res) => {
