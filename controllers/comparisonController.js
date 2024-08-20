@@ -42,7 +42,7 @@ export async function getComparison(req, res) {
       orderByQuery = { revenue: "asc" };
   }
 
-  const dataQuery = {
+  const data = await prisma.company.findMany({
     orderBy: orderByQuery,
     where: {
       id: {
@@ -58,13 +58,14 @@ export async function getComparison(req, res) {
       totalEmployees: true,
       categories: { select: { name: true } },
     },
-  };
-  const data = await fetchCompanies(dataQuery);
+  });
   if (data) {
-    const resData = data.map((item) => ({
-      ...item,
-      categories: item.categories.map((category) => category.name),
-    }));
+    const resData = serializeBigInt(
+      data.map((item) => ({
+        ...item,
+        categories: item.categories.map((category) => category.name),
+      }))
+    );
     res.send(resData);
   } else {
     res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
@@ -115,48 +116,6 @@ export async function getCompaniesRank(req, res) {
   }
 }
 
-export async function getSelections_v(req, res) {
-  const { order = "asc", limit = 10, page = 0 } = req.query;
-  //page가 false이면 0 -> offset없음
-  const offset = page ? (page - 1) * limit : 0;
-  //순위를 정의하는 기준
-  const sortBy = `"${req.query.sortBy || "selectedCount"}"`;
-  const orderByRank = Prisma.sql([sortBy]);
-  const orderByScending = Prisma.sql([order]);
-  try {
-    const totalCount = await prisma.company.count();
-
-    const response = await prisma.$queryRaw`
-    WITH RankedCompanies AS (
-      SELECT
-        *,
-        ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
-      FROM "public"."Company"
-      LIMIT ${Prisma.sql`${parseInt(limit)}`}
-      OFFSET ${offset}
-    )
-    SELECT * FROM RankedCompanies
-    -- 순위를 정의하는 기준과 다른 데이터의 정렬기준
-    ORDER BY rank ${orderByScending}
-    `.then((res) => serializeBigInt(res));
-
-    //쿼리가 2가지라 동시 호출후 Promise.all await 처리
-    const [count, data] = await Promise.all([totalCount, response]);
-
-    if (data) {
-      const returnData = {
-        list: data,
-        totalCount: count,
-      };
-      res.send(returnData);
-    } else {
-      res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
-    }
-  } catch (error) {
-    res.send({ message: error.message });
-  }
-}
-
 export async function getSelections(req, res) {
   const { order = "asc", limit = 10, page = 0 } = req.query;
   //page가 false이면 0 -> offset없음
@@ -174,7 +133,7 @@ export async function getSelections(req, res) {
         c.*,
         ROW_NUMBER() OVER (ORDER BY c.${orderByRank} DESC) AS rank
       FROM "public"."Company" c
-      LIMIT 5
+      LIMIT ${limit}
       OFFSET ${offset}
     )
     SELECT
