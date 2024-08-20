@@ -112,7 +112,7 @@ export const getInvestmentStatus = async (req, res) => {
   });
 
   // 조회된 데이터 변환
-  const status = companies.map((company) => ({
+  const status = companies.map((company, index) => ({
     id: company.id,
     name: company.name,
     description: company.description,
@@ -120,6 +120,7 @@ export const getInvestmentStatus = async (req, res) => {
     virtualInvestment: company.virtualInvestment.toString(), // 가상 투자 총액을 문자열로 변환
     actualInvestment: company.actualInvestment.toString(), // 실제 투자 총액을 문자열로 변환
     totalEmployees: company.totalEmployees,
+    rank: offset + index + 1, // sortBy에 따라 기업 랭크 추가
   }));
 
   // 페이지네이션 정보 계산
