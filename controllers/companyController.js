@@ -47,11 +47,12 @@ export const getCompanies = async (req, res) => {
     }),
   ]);
 
-  const bigIntToString = companies.map((company) => ({
+  const bigIntToString = companies.map((company, index) => ({
     ...company,
     categories: company.categories.map((category) => category.name),
     actualInvestment: company.actualInvestment.toString(),
     revenue: company.revenue.toString(),
+    rank: offset + (index + 1),
   }));
 
   res.status(200).send({ totalCount, list: bigIntToString });
