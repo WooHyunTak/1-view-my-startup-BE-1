@@ -49,10 +49,23 @@ export async function getComparison(req, res) {
         in: comparisonIds,
       },
     },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      actualInvestment: true,
+      revenue: true,
+      totalEmployees: true,
+      categories: { select: { name: true } },
+    },
   };
   const data = await fetchCompanies(dataQuery);
   if (data) {
-    res.send(data);
+    const resData = data.map((item) => ({
+      ...item,
+      categories: item.categories.map((category) => category.name),
+    }));
+    res.send(resData);
   } else {
     res.status(404).send({ message: "기업정보를 찾을수 없습니다." });
   }
