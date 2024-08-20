@@ -153,7 +153,7 @@ export async function getSelections(req, res) {
   const orderByRank = Prisma.sql([sortBy]);
   const orderByScending = Prisma.sql([order]);
   try {
-    const totalCount = await prisma.company.count();
+    const totalCount = prisma.company.count();
 
     const response = prisma.$queryRaw`
     WITH RankedCompanies AS (
