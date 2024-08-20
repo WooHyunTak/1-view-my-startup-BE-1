@@ -75,7 +75,8 @@ export async function getComparison(req, res) {
 export async function getCompaniesRank(req, res) {
   const { id } = req.params;
   //기본값
-  const { sortBy = "revenue", order = "ASC" } = req.query;
+  const { order = "ASC" } = req.query;
+  const sortBy = `"${req.query.sortBy || "revenue"}"`;
   //그냥 템플릿을 사용하면 프리즈마에서 sql로 인식을 못함 prisma.sql로 변환
   const orderByRank = Prisma.sql([sortBy]);
   const orderbyView = Prisma.sql([order]);
@@ -83,9 +84,9 @@ export async function getCompaniesRank(req, res) {
     const data = await prisma.$queryRaw`
     WITH RankedCompanies AS (
       SELECT
-      *,
+      c.*,
       ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
-      FROM "public"."Company"
+      FROM "public"."Company" c
     ),
     TargetRank AS (
       SELECT rank
@@ -95,20 +96,39 @@ export async function getCompaniesRank(req, res) {
     RackRange AS (
        SELECT rank
        FROM TargetRank
-    )
+    ),
+    RankedAndCategorized AS (
+    SELECT
+        rc.*,
+        jsonb_agg(cat.name) AS categories
+    FROM RankedCompanies rc
+    LEFT JOIN "public"."_CompanyCategories" cc ON rc.id::text = cc."B"
+    LEFT JOIN "public"."Category" cat ON cc."A"::text = cat.id::text
+    GROUP BY rc.id,rc.rank, rc."name", rc."description",
+	rc."brandImage", rc."actualInvestment", rc."virtualInvestment",
+	rc."revenue",
+	rc."totalEmployees",
+	rc."selectedCount",rc."comparedCount",rc."createdAt",
+	rc."updatedAt"
+),
+    FilteredCompanies AS (
     SELECT * FROM (
-      SELECT * FROM RankedCompanies
+      SELECT * FROM RankedAndCategorized
       WHERE rank BETWEEN (SELECT rank - 2 FROM RackRange) AND (SELECT rank + 2 FROM RackRange)
 
       UNION
       -- 선택 기업이 상위 2위 이상이라 상위의 2개의 로우값이 부족할 경우 석택기업을 포함한 5개의 기업을 보장함
-      SELECT * FROM RankedCompanies
+      SELECT * FROM RankedAndCategorized
       where rank > (select rank from TargetRank)
       order by rank 
       limit 5
     ) AS combined
     ORDER BY rank --${orderbyView}
     LIMIT 5
+  )
+  SELECT *
+  FROM FilteredCompanies
+  ORDER BY rank;
   `;
     res.send(serializeBigInt(data));
   } catch (e) {
