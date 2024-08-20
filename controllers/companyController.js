@@ -123,13 +123,14 @@ export const getInvestmentStatus = async (req, res) => {
   }));
 
   // 페이지네이션 정보 계산
-  const totalCompanies = await prisma.company.count(); // 전체 항목
-  const totalPage = Math.ceil(totalCompanies / limit); // 전체 페이지 수 계산
+  const totalCount = await prisma.company.count(); // 전체 항목
+  const totalPage = Math.ceil(totalCount / limit); // 전체 페이지 수 계산
   const hasNextPage = page < totalPage; // 다음 페이지가 있는지 확인
 
   res.status(200).send({
     currentPage: page,
     totalPage: totalPage,
+    totalCount: totalCount,
     hasNextPage: hasNextPage,
     list: status,
   });
