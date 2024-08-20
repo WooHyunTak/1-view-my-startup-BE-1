@@ -6,5 +6,6 @@ const app = express.Router();
 app.get("/", comparison.getComparison);
 app.get("/rank/:id", comparison.getCompaniesRank);
 app.get("/selections", comparison.getSelections);
+app.get("/status", comparison.getComparisonStatus);
 
 export default app;

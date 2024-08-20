@@ -47,7 +47,8 @@ export const getCompanies = async (req, res) => {
     }),
   ]);
 
-  const bigIntToString = companies.map((company, index) => ({
+  //bigInt to string
+  const companiesWithRank = companies.map((company, index) => ({
     ...company,
     categories: company.categories.map((category) => category.name),
     actualInvestment: company.actualInvestment.toString(),
@@ -55,7 +56,7 @@ export const getCompanies = async (req, res) => {
     rank: offset + (index + 1),
   }));
 
-  res.status(200).send({ totalCount, list: bigIntToString });
+  res.status(200).send({ totalCount, list: companiesWithRank });
 };
 
 export const getCompanyById = async (req, res) => {
