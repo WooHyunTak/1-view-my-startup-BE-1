@@ -169,3 +169,40 @@ export async function getSelections(req, res) {
     res.send({ message: error.message });
   }
 }
+
+//비교 현황 페이지용 기업리스트 (GET)
+export async function getComparisonStatus(req, res) {
+  const { order = "desc", sortBy = "selectedCount" } = req.query;
+  const limit = parseInt(req.query.limit) || 10;
+  //page기본값 1
+  const page = parseInt(req.query.page) || 1;
+  const offset = page ? (page - 1) * limit : 0;
+
+  const sortOptions = { [sortBy]: order };
+
+  const [totalCount, companies] = await prisma.$transaction([
+    prisma.company.count(),
+    prisma.company.findMany({
+      //데이터 동일성 위해 정렬할때 id desc순으로
+      orderBy: [sortOptions, { id: "desc" }],
+      take: limit,
+      skip: offset || 0,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        selectedCount: true,
+        comparedCount: true,
+        categories: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const companyListWithRank = companies.map((company, index) => ({
+    ...company,
+    categories: company.categories.map((category) => category.name),
+    rank: offset + (index + 1),
+  }));
+
+  res.status(200).send({ totalCount, list: companyListWithRank });
+}
