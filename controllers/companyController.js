@@ -62,12 +62,35 @@ export const getCompanyById = async (req, res) => {
   const { id } = req.params;
   assert(id, Uuid);
 
+  // 회사 정보를 가져오고, investments를 투자금 순으로 정렬
   const company = await prisma.company.findUniqueOrThrow({
     where: { id },
-    include: { investments: true, categories: true },
+    include: {
+      investments: {
+        orderBy: {
+          amount: "desc",
+        },
+      },
+      categories: true,
+    },
   });
 
-  const bigIntToString = JSON.stringify(company, replaceBigIntToString);
+  // investments에 순위 추가
+  const investmentsWithRank = company.investments.map((investment, index) => ({
+    ...investment,
+    rank: index + 1,
+  }));
+
+  // 순위가 추가된 investments로 company 객체 업데이트
+  const companyWithRankedInvestments = {
+    ...company,
+    investments: investmentsWithRank,
+  };
+
+  const bigIntToString = JSON.stringify(
+    companyWithRankedInvestments,
+    replaceBigIntToString
+  );
 
   res.setHeader("Content-Type", "application/json");
   res.status(200).send(bigIntToString);
