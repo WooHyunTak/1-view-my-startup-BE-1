@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { assert } from "superstruct";
 import { Uuid } from "../structs/validateUuid.js";
 import { replaceBigIntToString } from "../utils/stringifyBigInt.js";
-import transformBigInt from "../utils/transformBigInt.js";
+import { parse } from "dotenv";
 
 const prisma = new PrismaClient();
 
@@ -63,6 +63,7 @@ export const getCompanyById = async (req, res) => {
 
   const company = await prisma.company.findUniqueOrThrow({
     where: { id },
+    include: { investments: true, categories: true },
   });
 
   const bigIntToString = JSON.stringify(company, replaceBigIntToString);
@@ -76,7 +77,7 @@ export const getInvestmentStatus = async (req, res) => {
   const {
     sortBy = "virtualInvestment",
     order = "desc",
-    cursor,
+    page = 1,
     limit = 10,
   } = req.query;
 
@@ -95,30 +96,13 @@ export const getInvestmentStatus = async (req, res) => {
       break;
   }
 
+  // offset 계산
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
   // 페이지네이션 및 정렬을 포함한 회사 데이터 조회
   const companies = await prisma.company.findMany({
-    // 커서가 있는지 확인
-    where: cursor
-      ? {
-          // 두 조건 만족하는 데이터 가져옴
-          AND: [
-            // 이전 페이지의 마지막 항목과 동일한 id를 가진 데이터 제외, 중복 방지
-            { id: { not: cursor } },
-            {
-              // 정렬기준(actual or virtual)에 따라 정렬 방식이 desc인지 asc인지 확인
-              // desc이면 가리키는 항목의 sortBy 값보다 작거나 같은 데이터를 가져옴
-              [sortBy]: {
-                [order === "desc" ? "lte" : "gte"]:
-                  // id가 cursor의 값과 일치하는 데이터를 조회
-                  // 데이터에서 sortBy 값을 가져옴
-                  (
-                    await prisma.company.findUnique({ where: { id: cursor } })
-                  )[sortBy],
-              },
-            },
-          ],
-        }
-      : {},
+    skip: offset,
+    take: parseInt(limit),
     orderBy: [
       orderBy,
       { id: "desc" }, // 같은 값을 가지는 항목들에 대해 고유 ID로 정렬하여 항상 동일한 순서를 유지
@@ -138,14 +122,16 @@ export const getInvestmentStatus = async (req, res) => {
     totalEmployees: company.totalEmployees,
   }));
 
-  // 다음 페이지 커서를 설정
-  // null: 의도적으로 `값이 없다` 라는 의미를 전달
-  // undefined: 변수 선언 되었지만 아직 값이 할당되지 않았을 때 자동으로 부여
-  // 프로그래머가 의도적으로 undefined를 할당하는 경우는 거의 없음
-  const nextCursor =
-    companies.length === parseInt(limit)
-      ? companies[companies.length - 1].id
-      : null;
+  // 페이지네이션 정보 계산
+  const totalCount = await prisma.company.count(); // 전체 항목
+  const totalPage = Math.ceil(totalCount / limit); // 전체 페이지 수 계산
+  const hasNextPage = page < totalPage; // 다음 페이지가 있는지 확인
 
-  res.status(200).send({ nextCursor, list: transformBigInt(status) });
+  res.status(200).send({
+    currentPage: page,
+    totalPage: totalPage,
+    totalCount: totalCount,
+    hasNextPage: hasNextPage,
+    list: status,
+  });
 };
