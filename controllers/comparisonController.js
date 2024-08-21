@@ -201,3 +201,37 @@ export async function getComparisonStatus(req, res) {
 
   res.status(200).send({ totalCount, list: companyListWithRank });
 }
+
+export async function fetchCompanyCounts(req, res) {
+  console.log(req.body);
+  const { myCompanyId, comparisonIds } = req.body;
+  const data = await prisma.$transaction([
+    prisma.company.update({
+      where: {
+        id: myCompanyId,
+      },
+      data: {
+        selectedCount: {
+          increment: 1,
+        },
+      },
+    }),
+    prisma.company.updateMany({
+      where: {
+        id: {
+          in: comparisonIds,
+        },
+      },
+      data: {
+        comparedCount: {
+          increment: 1,
+        },
+      },
+    }),
+  ]);
+  if (data) {
+    res.sendStatus(201);
+  } else {
+    res.status(404).send({ message: "데이터를 찾을수 없습니다." });
+  }
+}

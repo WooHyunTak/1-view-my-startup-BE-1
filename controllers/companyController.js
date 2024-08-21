@@ -3,6 +3,7 @@ import { assert } from "superstruct";
 import { Uuid } from "../structs/validateUuid.js";
 import { replaceBigIntToString } from "../utils/stringifyBigInt.js";
 import { parse } from "dotenv";
+import { serializeBigInt } from "../utils/serializeBigInt.js";
 
 const prisma = new PrismaClient();
 
@@ -160,4 +161,35 @@ export const getInvestmentStatus = async (req, res) => {
     hasNextPage: hasNextPage,
     list: status,
   });
+};
+
+export const fetchCompanyCounts = async (res, req) => {
+  const { myCompanyId, comparisonIds } = req.body;
+  const data = await prisma.$transaction([
+    prisma.company.update({
+      where: myCompanyId,
+      data: {
+        selectedCount: {
+          increment: 1,
+        },
+      },
+    }),
+    prisma.company.updateMany({
+      where: {
+        id: {
+          in: comparisonIds,
+        },
+      },
+      data: {
+        comparedCount: {
+          increment: 1,
+        },
+      },
+    }),
+  ]);
+  if (data) {
+    res.send(serializeBigInt(data));
+  } else {
+    res.status(404).send({ message: "데이터를 찾을수 없습니다." });
+  }
 };
