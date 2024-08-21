@@ -15,32 +15,7 @@ const fetchCompanies = async (query) => {
 export async function getComparison(req, res) {
   const { comparisonIds } = req.body;
   const { sortBy = "revenue", order = "asc" } = req.query;
-  let orderByQuery = {};
-  switch (sortBy) {
-    case "revenue":
-      if (order === "asc") {
-        orderByQuery = { revenue: "asc" };
-      } else {
-        orderByQuery = { revenue: "desc" };
-      }
-      break;
-    case "totalEmployees":
-      if (order === "asc") {
-        orderByQuery = { totalEmployees: "asc" };
-      } else {
-        orderByQuery = { totalEmployees: "desc" };
-      }
-      break;
-    case "actualInvestment":
-      if (order === "asc") {
-        orderByQuery = { actualInvestment: "asc" };
-      } else {
-        orderByQuery = { actualInvestment: "desc" };
-      }
-      break;
-    default:
-      orderByQuery = { revenue: "asc" };
-  }
+  let orderByQuery = { [sortBy]: order };
 
   const data = await prisma.company.findMany({
     orderBy: orderByQuery,
@@ -85,7 +60,7 @@ export async function getCompaniesRank(req, res) {
     WITH RankedCompanies AS (
       SELECT
       c.*,
-      ROW_NUMBER() OVER (ORDER BY ${orderByRank} desc) AS rank
+      ROW_NUMBER() OVER (ORDER BY ${orderByRank} ${orderbyView}) AS rank
       FROM "public"."Company" c
     ),
     TargetRank AS (
