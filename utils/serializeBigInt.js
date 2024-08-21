@@ -1,5 +1,8 @@
 //빅인트 처리를 위한 로직 빅인트타입을 스트링으로 변환한다.
 export const serializeBigInt = (value) => {
+  if (value === null || value === undefined) {
+    return value;
+  }
   if (typeof value === "bigint") {
     return value.toString();
   }
