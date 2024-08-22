@@ -124,8 +124,12 @@ export const getInvestmentStatus = async (req, res) => {
   // offset 계산
   const offset = (parseInt(page) - 1) * parseInt(limit);
 
+  //where 투자금이 0 이상인 기업만 조회.
+  const hasInvestments = { virtualInvestment: { gt: 0 } };
+
   // 페이지네이션 및 정렬을 포함한 회사 데이터 조회
   const companies = await prisma.company.findMany({
+    where: hasInvestments,
     skip: offset,
     take: parseInt(limit),
     orderBy: [
@@ -149,7 +153,7 @@ export const getInvestmentStatus = async (req, res) => {
   }));
 
   // 페이지네이션 정보 계산
-  const totalCount = await prisma.company.count(); // 전체 항목
+  const totalCount = await prisma.company.count({ where: hasInvestments }); // 전체 항목
   const totalPage = Math.ceil(totalCount / limit); // 전체 페이지 수 계산
   const hasNextPage = page < totalPage; // 다음 페이지가 있는지 확인
 
