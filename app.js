@@ -35,4 +35,4 @@ app.use((err, req, res, next) => {
   }
 });
 
-app.listen(PORT, () => console.log("Server Started"));
+app.listen(PORT || 3000, () => console.log("Server Started"));
