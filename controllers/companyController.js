@@ -38,6 +38,7 @@ export const getCompanies = async (req, res) => {
       select: {
         id: true,
         name: true,
+        brandColor: true,
         description: true,
         actualInvestment: true,
         revenue: true,
@@ -145,6 +146,7 @@ export const getInvestmentStatus = async (req, res) => {
     id: company.id,
     name: company.name,
     description: company.description,
+    brandColor: company.brandColor,
     categories: company.categories.map((category) => category.name), // 카테고리 이름 배열로 변환
     virtualInvestment: company.virtualInvestment.toString(), // 가상 투자 총액을 문자열로 변환
     actualInvestment: company.actualInvestment.toString(), // 실제 투자 총액을 문자열로 변환

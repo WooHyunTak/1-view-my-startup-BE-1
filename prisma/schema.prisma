@@ -18,6 +18,7 @@ model Company {
   name              String       @unique
   description       String
   brandImage        String?
+  brandColor        Color        @default(WHITE)
   actualInvestment  BigInt       @default(0)
   virtualInvestment BigInt       @default(0)
   revenue           BigInt       @default(0)
@@ -48,4 +49,13 @@ model Category {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   companies Company[] @relation("CompanyCategories")
+}
+
+enum Color {
+  PURPLE
+  BLUE
+  RED
+  GREEN
+  YELLOW
+  WHITE
 }

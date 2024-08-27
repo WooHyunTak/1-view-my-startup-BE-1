@@ -28,7 +28,9 @@ export async function getComparison(req, res) {
       id: true,
       name: true,
       description: true,
+      brandColor: true,
       actualInvestment: true,
+      brandColor: true,
       revenue: true,
       totalEmployees: true,
       categories: { select: { name: true } },
@@ -80,7 +82,7 @@ export async function getCompaniesRank(req, res) {
     LEFT JOIN "public"."_CompanyCategories" cc ON rc.id::text = cc."B"
     LEFT JOIN "public"."Category" cat ON cc."A"::text = cat.id::text
     GROUP BY rc.id,rc.rank, rc."name", rc."description",
-	rc."brandImage", rc."actualInvestment", rc."virtualInvestment",
+	rc."brandImage", rc."brandColor", rc."actualInvestment", rc."virtualInvestment",
 	rc."revenue",
 	rc."totalEmployees",
 	rc."selectedCount",rc."comparedCount",rc."createdAt",
@@ -139,7 +141,7 @@ export async function getSelections(req, res) {
     LEFT JOIN "public"."_CompanyCategories" cc ON rc.id::text = cc."B"
     LEFT JOIN "public"."Category" cat ON cc."A"::text = cat.id::text
     GROUP BY rc.id,rc.rank, rc."name", rc."description",
-	rc."brandImage", rc."actualInvestment", rc."virtualInvestment",
+	rc."brandImage", rc."brandColor", rc."actualInvestment", rc."virtualInvestment",
 	rc."revenue",
 	rc."totalEmployees",
 	rc."selectedCount",rc."comparedCount",rc."createdAt",
@@ -186,6 +188,7 @@ export async function getComparisonStatus(req, res) {
         id: true,
         name: true,
         description: true,
+        brandColor: true,
         selectedCount: true,
         comparedCount: true,
         categories: { select: { name: true } },
