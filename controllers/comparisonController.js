@@ -203,7 +203,6 @@ export async function getComparisonStatus(req, res) {
 }
 
 export async function fetchCompanyCounts(req, res) {
-  console.log(req.body);
   const { myCompanyId, comparisonIds } = req.body;
   const data = await prisma.$transaction([
     prisma.company.update({
@@ -230,7 +229,7 @@ export async function fetchCompanyCounts(req, res) {
     }),
   ]);
   if (data) {
-    res.sendStatus(201);
+    res.sendStatus(204);
   } else {
     res.status(404).send({ message: "데이터를 찾을수 없습니다." });
   }
