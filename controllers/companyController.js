@@ -32,7 +32,7 @@ export const getCompanies = async (req, res) => {
     }),
     prisma.company.findMany({
       where: searchQuery,
-      orderBy: [sortOption, { id: "desc" }],
+      orderBy: [sortOption, { name: "asc" }],
       take: limit,
       skip: offset || 0,
       select: {
@@ -135,7 +135,7 @@ export const getInvestmentStatus = async (req, res) => {
     take: parseInt(limit),
     orderBy: [
       orderBy,
-      { id: "desc" }, // 같은 값을 가지는 항목들에 대해 고유 ID로 정렬하여 항상 동일한 순서를 유지
+      { name: "asc" }, // 같은 값을 가지는 항목들에 대해 name asc 정렬하여 항상 동일한 순서를 유지
     ],
     take: parseInt(limit), // 가져올 항목 수
     include: { investments: true, categories: true },
