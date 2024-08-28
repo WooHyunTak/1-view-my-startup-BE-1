@@ -62,7 +62,7 @@ export async function getCompaniesRank(req, res) {
     WITH RankedCompanies AS (
       SELECT
       c.*,
-      ROW_NUMBER() OVER (ORDER BY ${orderByRank} ${orderbyView}) AS rank
+      ROW_NUMBER() OVER (ORDER BY ${orderByRank} ${orderbyView}, name asc) AS rank
       FROM "public"."Company" c
     ),
     TargetRank AS (
