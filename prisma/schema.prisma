@@ -13,38 +13,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model COMPANY {
-  id                String        @id @unique @default(uuid())
-  name              String        @unique
+model Company {
+  id                String       @id @unique @default(uuid())
+  name              String       @unique
   description       String
-  brand_image       String?
-  actual_investment Int           @default(0)
-  revenue           Int           @default(0)
-  total_employees   Int           @default(0)
-  selected_count    Int           @default(0)
-  compared_count    Int           @default(0)
-  createAt          DateTime      @default(now())
-  updateAt          DateTime      @updatedAt
-  investment        INVENSTMENT[]
-  categorys         CATEGORY[]
+  brandImage        String?
+  brandColor        Color        @default(WHITE)
+  actualInvestment  BigInt       @default(0)
+  virtualInvestment BigInt       @default(0)
+  revenue           BigInt       @default(0)
+  totalEmployees    Int          @default(0)
+  selectedCount     Int          @default(0)
+  comparedCount     Int          @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  investments       Investment[]
+  categories        Category[]   @relation("CompanyCategories")
 }
 
-model INVENSTMENT {
+model Investment {
   id        String   @id @unique @default(uuid())
-  name      String   @unique
-  amount    Int
+  name      String
+  amount    BigInt
   comment   String
   password  String
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
-  company   COMPANY  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
 }
 
-model CATEGORY {
-  id       Int       @id @unique @default(autoincrement())
-  name     String    @unique
-  createAt DateTime  @default(now())
-  updateAt DateTime  @updatedAt
-  companys COMPANY[]
+model Category {
+  id        Int       @id @unique @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  companies Company[] @relation("CompanyCategories")
+}
+
+enum Color {
+  PURPLE
+  BLUE
+  RED
+  GREEN
+  YELLOW
+  WHITE
 }
