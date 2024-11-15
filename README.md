@@ -2,7 +2,7 @@
 
 # **{스프린트1기 1팀}**
 
-팀 협업 [노션 링크: [https://bubble-city-3ac.notion.site/b5be241e46ed481aa49aa72153713c7c?v=fa8ecbdb28274d68952d70e09716e8e9&pvs=4]
+팀 협업 [노션 링크: [https://bubble-city-3ac.notion.site/b5be241e46ed481aa49aa72153713c7c?v=fa8ecbdb28274d68952d70e09716e8e9]
 
 ## **팀원 구성**
 
